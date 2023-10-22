@@ -1,0 +1,34 @@
+const fs = require(`fs`);
+const path = require(`path`);
+
+async function deleteOldFiles(directoryPath) {
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return;
+    }
+
+    files.forEach((file) => {
+      const filePath = path.join(directoryPath, file);
+      fs.stat(filePath, (error, stats) => {
+        if (error) {
+          return;
+        }
+
+        const currentTime = new Date();
+        const fileCreatedTime = new Date(stats.birthtime);
+        const timeDiff = currentTime.getTime() - fileCreatedTime.getTime();
+
+        if (timeDiff > 300000) {
+          fs.unlink(filePath, (error) => {
+            if (error) {
+              return;
+            }
+          });
+        }
+      });
+    });
+  });
+}
+
+
+module.exports = { deleteOldFiles }
